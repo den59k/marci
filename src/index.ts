@@ -57,7 +57,7 @@ export class MarciApp<R extends object = {}> {
     }
   }
 
-  get(path: string, callback: RouteAction<{}>): void
+  get(path: string, callback: RouteAction<{}, R>): void
   get<T extends RouteOptions>(path: string, options: RouteOptions, callback: RouteAction<T, R>): void
   get<T extends readonly SchemaItem[]>(path: string, schemas: [...T], callback: RouteAction<GetOptionsFromSchemaList<T>, R>): void
   get(path: string, ...args: any[]): void {
@@ -68,7 +68,7 @@ export class MarciApp<R extends object = {}> {
     }
   }
   
-  post(path: string, callback: RouteAction<{}>): void
+  post(path: string, callback: RouteAction<{}, R>): void
   post<T extends RouteOptions>(path: string, options: RouteOptions, callback: RouteAction<T, R>): void
   post<T extends readonly SchemaItem[]>(path: string, schemas: [...T], callback: RouteAction<PostOptionsFromSchemaList<T>, R>): void
   post(path: string, ...args: any[]): void {
@@ -79,7 +79,7 @@ export class MarciApp<R extends object = {}> {
     }
   }
 
-  put(path: string, callback: RouteAction<{}>): void
+  put(path: string, callback: RouteAction<{}, R>): void
   put<T extends RouteOptions>(path: string, options: RouteOptions, callback: RouteAction<T, R>): void
   put<T extends readonly SchemaItem[]>(path: string, schemas: [...T], callback: RouteAction<PostOptionsFromSchemaList<T>, R>): void
   put(path: string, ...args: any[]): void {
@@ -90,7 +90,7 @@ export class MarciApp<R extends object = {}> {
     }
   }
 
-  patch(path: string, callback: RouteAction<{}>): void
+  patch(path: string, callback: RouteAction<{}, R>): void
   patch<T extends RouteOptions>(path: string, options: RouteOptions, callback: RouteAction<T, R>): void
   patch<T extends readonly SchemaItem[]>(path: string, schemas: [...T], callback: RouteAction<PostOptionsFromSchemaList<T>, R>): void
   patch(path: string, ...args: any[]): void {
@@ -101,7 +101,7 @@ export class MarciApp<R extends object = {}> {
     }
   }
 
-  delete(path: string, callback: RouteAction<{}>): void
+  delete(path: string, callback: RouteAction<{}, R>): void
   delete<T extends RouteOptions>(path: string, options: RouteOptions, callback: RouteAction<T, R>): void
   delete<T extends readonly SchemaItem[]>(path: string, schemas: [...T], callback: RouteAction<PostOptionsFromSchemaList<T>, R>): void
   delete(path: string, ...args: any[]): void {
@@ -150,7 +150,10 @@ export class MarciApp<R extends object = {}> {
             getValidationError((err as any).error, (err as any).where),
             { status: 400, headers: { "Content-Type": "application/json" } }
           )
-        } 
+        } else {
+          console.error(err)
+          return new Response(err.message, { status: 500 })
+        }
       }
     })
     return server
