@@ -4,17 +4,19 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun --watch src/index.ts"
+    "dev": "bun --watch src/index.ts",
+    "build": "bunx bunup src/index.ts --format esm"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "bun-plugin-dts": "^0.3.0",
+    "bunup": "^0.8.58"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
     "@sinclair/typebox": "^0.34.37",
-    "compact-json-schema": "^0.1.0",
-    "sury": "^10.0.4"
+    "compact-json-schema": "^0.1.0"
   }
 }
