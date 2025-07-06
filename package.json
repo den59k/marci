@@ -1,8 +1,9 @@
 {
   "name": "marci",
-  "module": "index.ts",
   "type": "module",
   "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "build": "bunx bunup src/index.ts --format esm"
@@ -18,5 +19,8 @@
   "dependencies": {
     "@sinclair/typebox": "^0.34.37",
     "compact-json-schema": "^0.1.0"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }
