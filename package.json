@@ -1,0 +1,20 @@
+{
+  "name": "marci",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun --watch src/index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@sinclair/typebox": "^0.34.37",
+    "compact-json-schema": "^0.1.0",
+    "sury": "^10.0.4"
+  }
+}
