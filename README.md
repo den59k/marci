@@ -1,6 +1,8 @@
 # Marci
 
-An extremely simple framework (practically a wrapper for `Bun.serve`) for those who are also switching from Fastify
+[![NPM version](https://img.shields.io/npm/v/%40den59k%2Fmarci)](https://www.npmjs.com/package/@den59k/marci)
+
+An extremely simple HTTP framework (practically a wrapper for `Bun.serve`) for those who are also switching from Fastify
 
 Works with only Bun (NodeJS and Deno are not supported)
 

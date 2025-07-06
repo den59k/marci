@@ -1,9 +1,15 @@
 {
-  "name": "marci",
+  "name": "@den59k/marci",
   "type": "module",
-  "private": true,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "license": "MIT",
+  "version": "0.0.1",
+  "description": "Simple HTTP framework powered by Bun",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/den59k/marci.git"
+  },
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "build": "bunx bunup src/index.ts --format esm"
