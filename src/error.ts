@@ -1,10 +1,25 @@
 export class HTTPError extends Error {
   statusCode: number
-  isJSON = false
+  data?: any
   override message: string
-  constructor(message: string, statusCode?: number) {
+  constructor(message: string | object, statusCode?: number) {
     super()
-    this.message = message
+    if (typeof message === "string") {
+      this.message = message
+    } else {
+      this.data = message
+      this.message = "HTTP Error"
+    }
     this.statusCode = statusCode ?? 400
+  }
+}
+
+export class ValidationError extends Error {
+  error: any
+  where?: string
+  constructor(err: any, where?: string) {
+    super(err.message)
+    this.error = err
+    this.where = where
   }
 }

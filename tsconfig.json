@@ -6,7 +6,6 @@
     "module": "Preserve",
     "moduleDetection": "force",
     "jsx": "react-jsx",
-    "allowJs": true,
 
     // Bundler mode
     "moduleResolution": "bundler",
@@ -20,6 +19,8 @@
     "noFallthroughCasesInSwitch": true,
     // "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
+    "declaration": true,
+    "isolatedDeclarations": true,
 
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,

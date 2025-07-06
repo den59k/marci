@@ -59,7 +59,7 @@ export default async (app: MarciApp<UserContext>) => {
 
   const createUserPost = schema({ text: "string" })
   /** Create new user post */
-  app.post("/:userId/post", [userParams, createUserPost], (req) => {
+  app.post("/:userId/post", { params: userParams, body: createUserPost }, (req) => {
     
     return { userId: req.params.userId, post: req.body }
   })

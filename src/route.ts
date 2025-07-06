@@ -2,11 +2,11 @@ import { schema } from "compact-json-schema"
 import type { MarciApp } from "."
 import type { MarciRequest } from "./common"
 
-export const useAuth = (ctx: MarciRequest<{ user: string }>) => {
-  ctx.user = "test"
+export const useAuth = (req: MarciRequest<{ user: string }>): void => {
+  req.user = "test"
 }
 
-export default (app: MarciApp<{ user: string }>) => {
+export default (app: MarciApp<{ user: string }>): void => {
 
   const userParams = schema({ userId: "number" })
   const createNewUser = schema({ name: { type: "string" } })

@@ -2,13 +2,15 @@ import type { BunRequest } from 'bun'
 import { unfoldTypeBoxSchema, type SchemaItem } from 'compact-json-schema'
 import { TypeBoxError } from '@sinclair/typebox'
 import { TypeCompiler } from '@sinclair/typebox/compiler'
-import route from './route'
-import { HTTPError } from './error'
+import { HTTPError, ValidationError } from './error'
 import { MarciRequestInternal } from './request'
-import type { MarciContext, MarciRequest, RegisterPluginOptions, RouteAction, RouteOptions } from './common'
+import type { MarciRequest, RegisterPluginOptions, RouteAction, RouteOptions } from './common'
 import { getRouteOptions, isDefault, parseBody, type GetOptionsFromSchemaList, getValidationError, type PostOptionsFromSchemaList } from './utils'
 
-export class MarciApp<R extends MarciContext = MarciContext> {
+export type { MarciRequest }
+export { HTTPError }
+
+export class MarciApp<R extends object = {}> {
 
   private routes: Record<string, any> = {}
   private promises: Promise<void>[] = []
@@ -49,7 +51,7 @@ export class MarciApp<R extends MarciContext = MarciContext> {
     }
   }
 
-  addHook(where: "onRequest", callback: (ctx: MarciRequest<R>) => void) {
+  addHook(where: "onRequest", callback: (ctx: MarciRequest<R>) => void): void {
     if (where === "onRequest") {
       this.onRequestHooks.push(callback)
     }
@@ -111,7 +113,7 @@ export class MarciApp<R extends MarciContext = MarciContext> {
   }
 
 
-  register(plugin: (app: MarciApp<any>) => void | Promise<void>, options: RegisterPluginOptions = {}) {
+  register(plugin: (app: MarciApp<any>) => void | Promise<void>, options: RegisterPluginOptions = {}): void {
     const app = new MarciApp()
 
     app.routes = this.routes
@@ -123,34 +125,34 @@ export class MarciApp<R extends MarciContext = MarciContext> {
     }
   }
 
-  async listen(port?: number) {
+  async listen(port?: number): Promise<Bun.Server> {
     if (this.promises.length > 0) {
       await Promise.all(this.promises)
     }
-    Bun.serve({
+    const server = Bun.serve({
       routes: this.routes,
       port,
       fetch(req) {
         const path = new URL(req.url).pathname
-        return new Response(`Route ${path} not Found`, { status: 404 });
+        return new Response(`Route ${req.method}:${path} not found`, { status: 404 });
       },
       error(err) {
         if (err instanceof HTTPError) {
-          return new Response(err.message, { status: err.statusCode })
-        } else if (err instanceof TypeBoxError) {
+          if (err.data) {
+            return Response.json(err.data, { status: err.statusCode })
+          }
           return new Response(
-            getValidationError((err as any).error),
+            err.message, 
+            { status: err.statusCode }
+          )
+        } else if (err instanceof TypeBoxError || err instanceof ValidationError) {
+          return new Response(
+            getValidationError((err as any).error, (err as any).where),
             { status: 400, headers: { "Content-Type": "application/json" } }
           )
         } 
-      },
+      }
     })
-
-    console.info(`Server listened on http://localhost:${port}`)
+    return server
   }
 }
-
-const app = new MarciApp()
-app.register(route, { prefix: "/api" })
-
-app.listen(3000)

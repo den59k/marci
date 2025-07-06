@@ -3,7 +3,7 @@ import type { TypeCheck } from "@sinclair/typebox/compiler"
 import type { BunRequest } from "bun"
 import { type SchemaItem, provideTypeBoxMap } from "compact-json-schema"
 import type { RouteOptions } from "./common"
-import { HTTPError } from "./error"
+import { HTTPError, ValidationError } from "./error"
 
 export type GetOptionsFromSchemaList <T extends readonly SchemaItem[]> = 
   T extends [SchemaItem]? { params: T[0] }: 
@@ -31,7 +31,7 @@ export const getRouteOptions = (method: string, schemas: SchemaItem[]): RouteOpt
   }
 }
 
-export const getValidationError = (obj: any, step?: string) => {
+export const getValidationError = (obj: any, step?: string): string => {
   if (step) {
     return `{"cause":"Validation error","where":"${step}","fields":{"${obj.path.slice(1)}":{"message":"${obj.message}"}}}`
   } else {
@@ -53,7 +53,7 @@ provideTypeBoxMap({
   optional: Type.Optional,
 })
 
-export const isDefault = (schema: SchemaItem) => {
+export const isDefault = (schema: SchemaItem): boolean => {
   if (typeof schema !== "object" || schema === null) return true
   for (let value of Object.values(schema)) {
     if (value !== "string" && value !== "string?" && value !== "string??") {
@@ -63,7 +63,7 @@ export const isDefault = (schema: SchemaItem) => {
   return true
 }
 
-export const parseBody = (schema: TypeCheck<any>, req: BunRequest) => {
+export const parseBody = (schema: TypeCheck<any>, req: BunRequest): Promise<any> => {
   return new Promise((res, rej) => {
     req.json()
       .catch((e: any) => {
@@ -73,8 +73,7 @@ export const parseBody = (schema: TypeCheck<any>, req: BunRequest) => {
         const check = schema.Check(resp)
         if (!check) {
           const error = schema.Errors(resp).First()
-          const err = new HTTPError(getValidationError(error, "body"), 400)
-          err.isJSON = true
+          const err = new ValidationError(error, "body")
           rej(err)
         }
         res(resp)
