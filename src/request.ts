@@ -30,6 +30,8 @@ export class MarciRequestInternal<T extends RouteOptions = {}> {
       } else {
         this.query = Object.fromEntries(queryParams.entries()) as any
       }
+    } else if (querySchema) {
+      this.query = Value.Parse(querySchema, {})
     } else {
       this.query = null as any
     }
