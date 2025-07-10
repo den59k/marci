@@ -4,7 +4,7 @@ import { MarciApp } from ".";
 const app = new MarciApp()
 
 const query = schema({ raw: "boolean" })
-app.get("/test", [{}, query], (req) => {
+app.get("/test/*", [{}, query], (req) => {
   
 
   return { status: "ok", query: req.query, params: req.params }

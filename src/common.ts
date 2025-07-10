@@ -13,7 +13,7 @@ export interface MarciContext {
 
 export type MarciRequest<R extends object = {}, T extends RouteOptions = {}> = MarciContext & R & {
   params: T["params"] extends object? SchemaType<T["params"]>: unknown
-  query: T["body"] extends object? SchemaType<T["body"]>: unknown
+  query: T["query"] extends object? SchemaType<T["query"]>: unknown
   body: T["body"] extends object? SchemaType<T["body"]>: unknown
   raw: BunRequest
 }
