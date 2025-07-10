@@ -7,15 +7,29 @@ export class MarciRequestInternal<T extends RouteOptions = {}> {
 
   raw: BunRequest
   params: T["params"] extends object? SchemaType<T["params"]>: unknown
-  query: T["body"] extends object? SchemaType<T["body"]>: unknown
+  query: T["query"] extends object? SchemaType<T["query"]>: unknown
   body: T["body"] extends object? SchemaType<T["body"]>: unknown = null as any
 
   constructor(req: BunRequest, paramsSchema: any, querySchema: any) {
     this.params = paramsSchema === null? req.params: Value.Parse(paramsSchema, req.params) as any
-    
+
     if (req.url.includes("?")) {
-      const params = new URL(req.url).searchParams
-      this.query = querySchema === null? params: Value.Parse(querySchema, params) as any
+      const queryParams = new URL(req.url).searchParams
+      if (querySchema && querySchema.type === "object") {
+        const query = {} as any
+        for (let [key, value] of queryParams.entries()) {
+          const schema = querySchema.properties[key]
+          if (!schema) continue
+          if (schema.type === "boolean" && value === "") {
+            query[key] = true
+            continue
+          }
+          query[key] = Value.Parse(schema, value)
+        }
+        this.query = query
+      } else {
+        this.query = Object.fromEntries(queryParams.entries()) as any
+      }
     } else {
       this.query = null as any
     }
