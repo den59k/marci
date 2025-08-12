@@ -6,6 +6,9 @@ export class HTTPError extends Error {
     super()
     if (typeof message === "string") {
       this.message = message
+    } else if (typeof message === "object" && message !== null && !("error" in message)) {
+      this.data = { error: message }
+      this.message = "HTTP Error"
     } else {
       this.data = message
       this.message = "HTTP Error"

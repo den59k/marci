@@ -12,7 +12,8 @@
   },
   "scripts": {
     "dev": "bun --watch src/dev-app.ts",
-    "build": "bunx bunup src/index.ts --format esm"
+    "build": "bunx bunup src/index.ts --format esm",
+    "release": "bun pm version patch"
   },
   "devDependencies": {
     "@types/bun": "latest",
