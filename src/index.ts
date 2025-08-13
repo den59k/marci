@@ -125,13 +125,14 @@ export class MarciApp<R extends object = {}> {
     }
   }
 
-  async listen(port?: number): Promise<Bun.Server> {
+  async listen(port?: number, hostname?: string): Promise<Bun.Server> {
     if (this.promises.length > 0) {
       await Promise.all(this.promises)
     }
     const server = Bun.serve({
       routes: this.routes,
       port,
+      hostname,
       fetch(req) {
         const path = new URL(req.url).pathname
         return new Response(`Route ${req.method}:${path} not found`, { status: 404 });
