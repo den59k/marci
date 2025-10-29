@@ -1,4 +1,4 @@
-import type { MarciApp } from "."
+import type { MarciApp } from "./MarciApp"
 
 export type MarciSyntax<R extends object = {}> = 
 ((app: MarciApp<any>) => Promise<void>) &
