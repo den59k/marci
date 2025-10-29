@@ -7,6 +7,7 @@ import { MarciRequestInternal } from './request'
 import type { MarciRequest, RegisterPluginOptions, RouteAction, RouteOptions } from './common'
 import { getRouteOptions, isDefault, parseBody, type GetOptionsFromSchemaList, getValidationError, type PostOptionsFromSchemaList } from './utils'
 
+export { marci, type MarciSyntax } from './marci-syntax'
 export type { MarciRequest }
 export { HTTPError }
 
