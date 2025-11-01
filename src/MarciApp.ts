@@ -4,7 +4,7 @@ import { TypeBoxError } from '@sinclair/typebox'
 import { TypeCompiler } from '@sinclair/typebox/compiler'
 import { HTTPError, ValidationError } from './error'
 import { MarciRequestInternal } from './request'
-import type { MarciRequest, RegisterPluginOptions, RouteAction, RouteOptions } from './common'
+import type { GetRouteAction, GetRouteOptions, MarciRequest, RegisterPluginOptions, RouteAction, RouteOptions } from './common'
 import { getRouteOptions, isDefault, parseBody, type GetOptionsFromSchemaList, getValidationError, type PostOptionsFromSchemaList } from './utils'
 
 export class MarciApp<R extends object = {}> {
@@ -54,9 +54,9 @@ export class MarciApp<R extends object = {}> {
     }
   }
 
-  get(path: string, callback: RouteAction<{}, R>): void
-  get<T extends RouteOptions>(path: string, options: RouteOptions, callback: RouteAction<T, R>): void
-  get<T extends readonly SchemaItem[]>(path: string, schemas: [...T], callback: RouteAction<GetOptionsFromSchemaList<T>, R>): void
+  get(path: string, callback: GetRouteAction<{}, R>): void
+  get<T extends GetRouteOptions>(path: string, options: GetRouteOptions, callback: GetRouteAction<T, R>): void
+  get<T extends readonly SchemaItem[]>(path: string, schemas: [...T], callback: GetRouteAction<GetOptionsFromSchemaList<T>, R>): void
   get(path: string, ...args: any[]): void {
     if (args.length === 1) {
       this.add(path, "GET", {}, args[0])
