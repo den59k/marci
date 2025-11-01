@@ -7,6 +7,11 @@ export type RouteOptions = {
   query?: SchemaItem,
 }
 
+export type GetRouteOptions = {
+  params?: SchemaItem,
+  query?: SchemaItem,
+}
+
 export interface MarciContext {
   
 }
@@ -18,6 +23,13 @@ export type MarciRequest<R extends object = {}, T extends RouteOptions = {}> = M
   raw: BunRequest
 }
 
+export type GetMarciRequest<R extends object = {}, T extends GetRouteOptions = {}> = MarciContext & R & {
+  params: T["params"] extends object? SchemaType<T["params"]>: unknown
+  query: T["query"] extends object? SchemaType<T["query"]>: unknown
+  raw: BunRequest
+}
+
 export type RouteAction <T extends RouteOptions, R extends object = {}> = (req: MarciRequest<R, T>) => (any | Promise<any>)
+export type GetRouteAction <T extends GetRouteOptions, R extends object = {}> = (req: GetMarciRequest<R, T>) => (any | Promise<any>)
 
 export type RegisterPluginOptions = { prefix?: string }

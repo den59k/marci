@@ -9,7 +9,7 @@ export type MarciSyntax<R extends object = {}> =
 };
 
 
-export const marci = <R extends object>(): MarciSyntax<R> => {
+export const marci = <R extends object = {}>(): MarciSyntax<R> => {
 
   const plugins: any[] = []
   const handlers: ((app: MarciApp<R>) => void | Promise<void>)[] = []
