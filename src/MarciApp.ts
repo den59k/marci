@@ -15,7 +15,6 @@ export class MarciApp<R extends object = {}> {
   private root: MarciApp | null = null
   
   private server!: Server
-  private websocket?: WebSocketHandler<any>
 
   private onListenHooks: Array<(ctx: any) => (void | Promise<void>)> = []
   private onRequestHooks: Array<(ctx: MarciRequest<R>) => (void | Promise<void>)> = []
@@ -133,8 +132,22 @@ export class MarciApp<R extends object = {}> {
     }
   }
 
-  registerWsHandler<T>(ws: WebSocketHandler<T>): void {
-    this.websocket = ws
+  private websocket?: WebSocketHandler<any>
+  private websocketPath?: string
+
+  registerWsHandler<T>(ws: WebSocketHandler<T>): void
+  registerWsHandler<T>(path: string | WebSocketHandler<T>, ws?: WebSocketHandler<T>): void {
+    if (typeof path === "string") {
+      this.websocket = ws
+      this.websocketPath = path
+    } else {
+      this.websocket = path
+    }
+  }
+
+  private notFoundHandler?: (req: Request, server: Server) => void
+  registerNotFoundHandler(handler: (req: Request, server: Server) => Response | undefined): void {
+    this.notFoundHandler = handler
   }
 
   async listen(port?: number, hostname?: string): Promise<Bun.Server> {
@@ -145,11 +158,14 @@ export class MarciApp<R extends object = {}> {
       routes: this.routes,
       port,
       hostname,
-      fetch: (req): Response => {
-        if (this.websocket && server.upgrade(req)) {
+      fetch: (req, server): Response => {
+        const path = new URL(req.url).pathname
+        if ((!this.websocketPath || this.websocketPath.startsWith(path)) && this.websocket && server.upgrade(req)) {
           return undefined as any
         }
-        const path = new URL(req.url).pathname
+        if (this.notFoundHandler) {
+          return this.notFoundHandler(req, server) as any
+        }
         return new Response(`Route ${req.method}:${path} not found`, { status: 404 });
       },
       websocket: this.websocket,
