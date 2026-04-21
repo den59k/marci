@@ -12,6 +12,7 @@ export class MarciApp<R extends object = {}> {
   private routes: Record<string, any> = {}
   private promises: Promise<void>[] = []
   private prefix = ""
+  private root: MarciApp | null = null
   
   private server!: Server
   private websocket?: WebSocketHandler<any>
@@ -32,7 +33,7 @@ export class MarciApp<R extends object = {}> {
 
     this.routes[fullPath][method] = async (req: BunRequest) => {
 
-      const request = new MarciRequestInternal(req, this.server!, paramsSchema, querySchema)
+      const request = new MarciRequestInternal(req, this.root?.server ?? this.server, paramsSchema, querySchema)
 
       for (const callback of this.onRequestHooks) {
         await callback(request as any)
@@ -121,7 +122,9 @@ export class MarciApp<R extends object = {}> {
   register(plugin: (app: MarciApp<any>) => void | Promise<void>, options: RegisterPluginOptions = {}): void {
     const app = new MarciApp()
 
+    app.root = this.root ?? this as any
     app.routes = this.routes
+    app.onListenHooks = this.onListenHooks
     app.prefix = this.prefix + (options.prefix ?? "")
 
     const resp = plugin(app)

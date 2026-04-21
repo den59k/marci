@@ -1,5 +1,6 @@
 {
   "lockfileVersion": 1,
+  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "my-backend",
@@ -13,6 +14,7 @@
         "bunup": "^0.8.58",
       },
       "peerDependencies": {
+        "@types/bun": "*",
         "typescript": "^5",
       },
     },
