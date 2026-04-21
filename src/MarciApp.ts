@@ -1,4 +1,4 @@
-import type { BunRequest } from 'bun'
+import type { BunRequest, WebSocketHandler } from 'bun'
 import { unfoldTypeBoxSchema, type SchemaItem } from 'compact-json-schema'
 import { TypeBoxError } from '@sinclair/typebox'
 import { TypeCompiler } from '@sinclair/typebox/compiler'
@@ -12,6 +12,8 @@ export class MarciApp<R extends object = {}> {
   private routes: Record<string, any> = {}
   private promises: Promise<void>[] = []
   private prefix = ""
+  
+  websocket?: WebSocketHandler
 
   private onRequestHooks: Array<(ctx: MarciRequest<R>) => (void | Promise<void>)> = []
 
@@ -130,10 +132,14 @@ export class MarciApp<R extends object = {}> {
       routes: this.routes,
       port,
       hostname,
-      fetch(req) {
+      fetch: (req): Response => {
+        if (this.websocket && server.upgrade(req)) {
+          return undefined as any
+        }
         const path = new URL(req.url).pathname
         return new Response(`Route ${req.method}:${path} not found`, { status: 404 });
       },
+      websocket: this.websocket,
       error(err) {
         if (err instanceof HTTPError) {
           if (err.data) {
