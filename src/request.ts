@@ -1,16 +1,17 @@
 import { Value } from "@sinclair/typebox/value"
-import type { BunRequest } from "bun"
+import type { BunRequest, Server } from "bun"
 import type { SchemaType } from "compact-json-schema"
 import type { RouteOptions } from "./common"
 
 export class MarciRequestInternal<T extends RouteOptions = {}> {
 
+  server: Server
   raw: BunRequest
   params: T["params"] extends object? SchemaType<T["params"]>: unknown
   query: T["query"] extends object? SchemaType<T["query"]>: unknown
   body: T["body"] extends object? SchemaType<T["body"]>: unknown = null as any
 
-  constructor(req: BunRequest, paramsSchema: any, querySchema: any) {
+  constructor(req: BunRequest, server: Server, paramsSchema: any, querySchema: any) {
     this.params = paramsSchema === null? req.params: Value.Parse(paramsSchema, req.params) as any
 
     if (req.url.includes("?")) {
@@ -37,5 +38,6 @@ export class MarciRequestInternal<T extends RouteOptions = {}> {
     }
 
     this.raw = req
+    this.server = server
   }
 }

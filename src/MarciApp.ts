@@ -1,4 +1,4 @@
-import type { BunRequest, WebSocketHandler } from 'bun'
+import type { BunRequest, Server, WebSocketHandler } from 'bun'
 import { unfoldTypeBoxSchema, type SchemaItem } from 'compact-json-schema'
 import { TypeBoxError } from '@sinclair/typebox'
 import { TypeCompiler } from '@sinclair/typebox/compiler'
@@ -13,8 +13,10 @@ export class MarciApp<R extends object = {}> {
   private promises: Promise<void>[] = []
   private prefix = ""
   
-  websocket?: WebSocketHandler
+  private server!: Server
+  private websocket?: WebSocketHandler<any>
 
+  private onListenHooks: Array<(ctx: any) => (void | Promise<void>)> = []
   private onRequestHooks: Array<(ctx: MarciRequest<R>) => (void | Promise<void>)> = []
 
   private add(path: string, method: string, _options: RouteOptions | SchemaItem[], callback: RouteAction<any>) {
@@ -30,7 +32,7 @@ export class MarciApp<R extends object = {}> {
 
     this.routes[fullPath][method] = async (req: BunRequest) => {
 
-      const request = new MarciRequestInternal(req, paramsSchema, querySchema)
+      const request = new MarciRequestInternal(req, this.server!, paramsSchema, querySchema)
 
       for (const callback of this.onRequestHooks) {
         await callback(request as any)
@@ -50,9 +52,13 @@ export class MarciApp<R extends object = {}> {
     }
   }
 
-  addHook(where: "onRequest", callback: (ctx: MarciRequest<R>) => void): void {
+  addHook(where: "onListen", callback: (server: Bun.Server) => void): void
+  addHook(where: "onRequest", callback: (ctx: MarciRequest<R>) => void): void
+  addHook(where: "onRequest" | "onListen", callback: (ctx: any) => void): void {
     if (where === "onRequest") {
       this.onRequestHooks.push(callback)
+    } else if (where === "onListen") {
+      this.onListenHooks.push(callback)
     }
   }
 
@@ -124,6 +130,10 @@ export class MarciApp<R extends object = {}> {
     }
   }
 
+  registerWsHandler<T>(ws: WebSocketHandler<T>): void {
+    this.websocket = ws
+  }
+
   async listen(port?: number, hostname?: string): Promise<Bun.Server> {
     if (this.promises.length > 0) {
       await Promise.all(this.promises)
@@ -160,6 +170,13 @@ export class MarciApp<R extends object = {}> {
         }
       }
     })
+
+    this.server = server
+    
+    for (const callback of this.onListenHooks) {
+      await callback(server)
+    }
+
     return server
   }
 }
